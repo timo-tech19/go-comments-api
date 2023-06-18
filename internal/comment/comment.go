@@ -2,7 +2,13 @@ package comment
 
 import (
 	"context"
+	"errors"
 	"fmt"
+)
+
+var (
+	ErrFetchingComment = errors.New("Failed to fetch comment by id")
+	ErrNotImplemented  = errors.New("Not implemented")
 )
 
 // Comment - a representation of the comment structure for our service
@@ -14,6 +20,7 @@ type Comment struct {
 }
 
 // interfaces in go???
+// Store - interface defines all of the methods which our service needs to operate
 type Store interface {
 	GetComment(context.Context, string) (Comment, error) // on the db level
 }
@@ -36,8 +43,20 @@ func (s *Service) GetComment(ctx context.Context, id string) (Comment, error) {
 	cmt, err := s.Store.GetComment(ctx, id)
 	if err != nil {
 		fmt.Println(err)
-		return Comment{}, err
+		return Comment{}, ErrFetchingComment
 	}
 
 	return cmt, nil
+}
+
+func (s *Service) UpdateComment(ctx context.Context, cmt *Comment) error {
+	return ErrNotImplemented
+}
+
+func (s *Service) DeleteComment(ctx context.Context, id string) error {
+	return ErrNotImplemented
+}
+
+func (s *Service) CreateComment(ctx context.Context, cmt *Comment) (Comment, error) {
+	return Comment{}, ErrNotImplemented
 }
