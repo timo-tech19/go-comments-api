@@ -1,7 +1,7 @@
 package comment
 
 import (
-	"context"
+	"context" // context.Context provides a central location for passing data between different layers of our app
 	"errors"
 	"fmt"
 )
