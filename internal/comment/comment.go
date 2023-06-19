@@ -16,7 +16,7 @@ type Comment struct {
 	ID     string
 	Slug   string
 	Body   string
-	author string
+	Author string
 }
 
 // interfaces in go???
