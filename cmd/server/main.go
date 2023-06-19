@@ -1,8 +1,10 @@
 package main
 
 import (
+	"context"
 	"fmt"
 
+	"github.com/timo-tech19/go-comments-api/internal/comment"
 	"github.com/timo-tech19/go-comments-api/internal/db"
 )
 
@@ -26,6 +28,15 @@ func Run() error {
 	// if err := db.Ping(context.Background()); err != nil {
 	// 	return err
 	// }
+
+	cmtService := comment.NewService(db)
+
+	cmtService.PostComment(context.Background(), comment.Comment{
+		ID:     "",
+		Slug:   "hello-world",
+		Author: "Timo",
+		Body:   "Hello world!",
+	})
 
 	fmt.Println("Database connection and ping successful")
 	return nil

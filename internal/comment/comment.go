@@ -23,6 +23,7 @@ type Comment struct {
 // Store - interface defines all of the methods which our service needs to operate
 type Store interface {
 	GetComment(context.Context, string) (Comment, error) // on the db level
+	PostComment(context.Context, Comment) (Comment, error)
 }
 
 // Service - struct on which all our logic will be built on
@@ -57,6 +58,12 @@ func (s *Service) DeleteComment(ctx context.Context, id string) error {
 	return ErrNotImplemented
 }
 
-func (s *Service) CreateComment(ctx context.Context, cmt *Comment) (Comment, error) {
-	return Comment{}, ErrNotImplemented
+func (s *Service) PostComment(ctx context.Context, cmt Comment) (Comment, error) {
+	insertedCmt, err := s.Store.PostComment(ctx, cmt)
+
+	if err != nil {
+		return Comment{}, err
+	}
+
+	return insertedCmt, nil
 }
