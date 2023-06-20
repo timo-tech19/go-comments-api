@@ -3,7 +3,9 @@ package main
 import (
 	"fmt"
 
+	"github.com/timo-tech19/go-comments-api/internal/comment"
 	"github.com/timo-tech19/go-comments-api/internal/db"
+	transportHttp "github.com/timo-tech19/go-comments-api/internal/transport/http"
 )
 
 // Run - responsible for startup and instantiation
@@ -22,21 +24,15 @@ func Run() error {
 		fmt.Println("Failed to migrate database")
 		return err
 	}
-
-	// if err := db.Ping(context.Background()); err != nil {
-	// 	return err
-	// }
-
-	// cmtService := comment.NewService(db)
-
-	// cmtService.PostComment(context.Background(), comment.Comment{
-	// 	ID:     "",
-	// 	Slug:   "hello-world",
-	// 	Author: "Timo",
-	// 	Body:   "Hello world!",
-	// })
-
 	fmt.Println("Database connection and ping successful")
+
+	cmtService := comment.NewService(db)
+
+	httpHandler := transportHttp.NewHandler(cmtService)
+	if err := httpHandler.Serve(); err != nil {
+		return err
+	}
+
 	return nil
 }
 
