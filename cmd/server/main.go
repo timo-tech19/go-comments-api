@@ -24,7 +24,6 @@ func Run() error {
 		fmt.Println("Failed to migrate database")
 		return err
 	}
-	fmt.Println("Database connection and ping successful")
 
 	cmtService := comment.NewService(db)
 
@@ -33,6 +32,7 @@ func Run() error {
 		return err
 	}
 
+	fmt.Println("Database connection and ping successful")
 	return nil
 }
 
