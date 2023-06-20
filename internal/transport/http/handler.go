@@ -29,6 +29,7 @@ func NewHandler(service CommentService) *Handler {
 	h.mapRoutes()
 	h.Router.Use(JSONMiddleware)
 	h.Router.Use(Logger)
+	h.Router.Use(TimeoutMiddleware)
 
 	// instantiate server field
 	h.Server = &http.Server{
