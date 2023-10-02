@@ -6,6 +6,7 @@ import (
 	"fmt"
 )
 
+// Define common error messages
 var (
 	ErrFetchingComment = errors.New("Failed to fetch comment by id")
 	ErrPostingComment  = errors.New("Failed to create comment")
@@ -14,7 +15,7 @@ var (
 	ErrNotImplemented  = errors.New("Not implemented")
 )
 
-// Comment - a representation of the comment structure for our service
+// Comment struct represent data in comment service
 type Comment struct {
 	ID     string
 	Slug   string
@@ -22,8 +23,7 @@ type Comment struct {
 	Author string
 }
 
-// interfaces in go???
-// Store - interface defines all of the methods which our service needs to operate
+// Store defines operations to be implemented by the database layer
 type Store interface {
 	GetComment(context.Context, string) (Comment, error) // on the db level
 	PostComment(context.Context, Comment) (Comment, error)
@@ -31,21 +31,20 @@ type Store interface {
 	UpdateComment(context.Context, string, Comment) (Comment, error)
 }
 
-// Service - struct on which all our logic will be built on
+// Service struct models our service functionality
 type Service struct {
 	Store Store
 }
 
-// NewService - returns a pointer to a newly created service
+// Returns a new instance of our comment service.
 func NewService(store Store) *Service {
 	return &Service{
 		Store: store,
 	}
 }
 
-// GetComment - method on a service struct which contains service level logic
+// Retrieves comment data in service layer
 func (s *Service) GetComment(ctx context.Context, id string) (Comment, error) {
-	fmt.Println("Retrieving a comment")
 	cmt, err := s.Store.GetComment(ctx, id)
 	if err != nil {
 		fmt.Println(err)
@@ -55,6 +54,7 @@ func (s *Service) GetComment(ctx context.Context, id string) (Comment, error) {
 	return cmt, nil
 }
 
+// Updates comment data in service layer
 func (s *Service) UpdateComment(ctx context.Context, ID string, cmt Comment) (Comment, error) {
 	updatedCmt, err := s.Store.UpdateComment(ctx, ID, cmt)
 
@@ -64,6 +64,7 @@ func (s *Service) UpdateComment(ctx context.Context, ID string, cmt Comment) (Co
 	return updatedCmt, nil
 }
 
+// Deletes comment data in service layer
 func (s *Service) DeleteComment(ctx context.Context, id string) error {
 	err := s.Store.DeleteComment(ctx, id)
 
@@ -74,6 +75,7 @@ func (s *Service) DeleteComment(ctx context.Context, id string) error {
 	return nil
 }
 
+// Adds a comment in service layer
 func (s *Service) PostComment(ctx context.Context, cmt Comment) (Comment, error) {
 	insertedCmt, err := s.Store.PostComment(ctx, cmt)
 
