@@ -8,6 +8,8 @@ import (
 	jwt "github.com/dgrijalva/jwt-go"
 )
 
+// Verifies if user is logged in.
+// original handler function is not called is user is unauthorised.
 func JWTAuth(
 	original func(w http.ResponseWriter, r *http.Request),
 ) func(w http.ResponseWriter, r *http.Request) {
@@ -33,6 +35,7 @@ func JWTAuth(
 	}
 }
 
+// verifies a jwt token
 func validateToken(accessToken string) bool {
 	var mySigningKey = []byte("jwtaccesstokenkey")
 	token, err := jwt.Parse(accessToken, func(token *jwt.Token) (interface{}, error) {

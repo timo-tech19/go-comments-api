@@ -12,26 +12,28 @@ import (
 	"github.com/gorilla/mux"
 )
 
+// Custom Handler for managing routing and integration with comment service
 type Handler struct {
 	Router  *mux.Router
 	Service CommentService
 	Server  *http.Server
 }
 
+// Creates a new Handler instance with mounted routes, middleware and configured http Server.
 func NewHandler(service CommentService) *Handler {
-	// Define new handler struct and set service field
 	h := &Handler{
 		Service: service,
 	}
 
-	// instantiate router field
 	h.Router = mux.NewRouter()
 	h.mapRoutes()
+
+	// inject middleware
 	h.Router.Use(JSONMiddleware)
 	h.Router.Use(Logger)
 	h.Router.Use(TimeoutMiddleware)
 
-	// instantiate server field
+	// configure server
 	h.Server = &http.Server{
 		Addr:    "0.0.0.0:8080",
 		Handler: h.Router,
@@ -39,6 +41,7 @@ func NewHandler(service CommentService) *Handler {
 	return h
 }
 
+// Connects handler functions to API endpoints(routes)
 func (h *Handler) mapRoutes() {
 	h.Router.HandleFunc("/alive", func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, "I am alive")
@@ -50,6 +53,8 @@ func (h *Handler) mapRoutes() {
 	h.Router.HandleFunc("/api/v1/comment/{id}", JWTAuth(h.DeleteComment)).Methods("DELETE")
 }
 
+// Launches server.
+// Server will shutdown gracefully incase of any errors.
 func (h *Handler) Serve() error {
 	go func() {
 		if err := h.Server.ListenAndServe(); err != nil {

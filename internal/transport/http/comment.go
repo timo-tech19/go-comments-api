@@ -11,6 +11,7 @@ import (
 	"github.com/timo-tech19/go-comments-api/internal/comment"
 )
 
+// Defines functionality provided by our comment service.
 type CommentService interface {
 	PostComment(context.Context, comment.Comment) (comment.Comment, error)
 	GetComment(ctx context.Context, ID string) (comment.Comment, error)
@@ -22,13 +23,16 @@ type Response struct {
 	Message string
 }
 
+// Defines data and validators for expected data in request body.
 type PostCommentRequest struct {
 	Slug   string `json:"slug" validate:"required"`
 	Author string `json:"author" validate:"required"`
 	Body   string `json:"body" validate:"required"`
 }
 
+// Converts PostCommentResquest struct data expected from the request into Comment struct data used in the comment service
 func postCommentRequestToComment(c PostCommentRequest) comment.Comment {
+	// the ID field is set to it's zero value since it is not initialized here.
 	return comment.Comment{
 		Slug:   c.Slug,
 		Author: c.Author,
@@ -36,14 +40,16 @@ func postCommentRequestToComment(c PostCommentRequest) comment.Comment {
 	}
 }
 
+// Add a new comment to comment service.
 func (h *Handler) PostComment(w http.ResponseWriter, r *http.Request) {
 	var postCmt PostCommentRequest
 
-	// Get request and decode body
+	// decode request body and scan into postCmt
 	if err := json.NewDecoder(r.Body).Decode(&postCmt); err != nil {
 		return
 	}
 
+	// validate postCmt using field tag validators
 	validate := validator.New()
 	err := validate.Struct(postCmt)
 
@@ -60,12 +66,13 @@ func (h *Handler) PostComment(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Send encoded json response
+	// Send json response
 	if err := json.NewEncoder(w).Encode(postedCmt); err != nil {
 		panic(err)
 	}
 }
 
+// Retrieve comment by id(specified in url param) from comment service
 func (h *Handler) GetComment(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := vars["id"]
@@ -86,6 +93,7 @@ func (h *Handler) GetComment(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// Updates comment by id(specified in url param) in comment service
 func (h *Handler) UpdateComment(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := vars["id"]
@@ -112,6 +120,7 @@ func (h *Handler) UpdateComment(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// Delete comment by id(specified in url param) in comment service
 func (h *Handler) DeleteComment(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	commentID := vars["id"]

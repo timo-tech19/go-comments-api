@@ -8,6 +8,7 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+// sets http response header to application/json
 func JSONMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
@@ -16,6 +17,7 @@ func JSONMiddleware(next http.Handler) http.Handler {
 	})
 }
 
+// Logs request metadata to the console
 func Logger(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		log.WithFields(
@@ -28,6 +30,7 @@ func Logger(next http.Handler) http.Handler {
 	})
 }
 
+// sets a timeout for processing each request
 func TimeoutMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ctx, cancel := context.WithTimeout(r.Context(), 15*time.Second)
