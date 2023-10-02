@@ -9,7 +9,8 @@ import (
 	"github.com/timo-tech19/go-comments-api/internal/comment"
 )
 
-// This approach allows for managing potential null values on the repository layer only
+// CommentRow struct represents data from database.
+// some fields are of type sql.NullString to handle potential null values in the database.
 type CommentRow struct {
 	ID     string
 	Slug   sql.NullString
@@ -17,6 +18,7 @@ type CommentRow struct {
 	Author sql.NullString
 }
 
+// Converts CommentRow struct used in database layer to Comment struct used in service layer.
 func commentRowToComment(c CommentRow) comment.Comment {
 	return comment.Comment{
 		ID:     c.ID,
@@ -26,6 +28,7 @@ func commentRowToComment(c CommentRow) comment.Comment {
 	}
 }
 
+// Retrieves a comment from the database
 func (d *Database) GetComment(ctx context.Context, uuid string) (comment.Comment, error) {
 	var cmtRow CommentRow
 	row := d.Client.QueryRowContext(
@@ -39,13 +42,16 @@ func (d *Database) GetComment(ctx context.Context, uuid string) (comment.Comment
 	err := row.Scan(&cmtRow.ID, &cmtRow.Slug, &cmtRow.Body, &cmtRow.Author)
 
 	if err != nil {
-		return comment.Comment{}, fmt.Errorf("Error fetching comment by uuid, %w", err)
+		return comment.Comment{}, fmt.Errorf("error fetching comment by uuid, %w", err)
 	}
 
 	return commentRowToComment(cmtRow), nil
 }
 
+// Adds a new comment to the database.
 func (d *Database) PostComment(ctx context.Context, cmt comment.Comment) (comment.Comment, error) {
+
+	// incomming cmt.ID is "" so must be generated and assigned before sending to database
 	cmt.ID = uuid.NewV4().String()
 	postRow := CommentRow{
 		ID:     cmt.ID,
@@ -54,6 +60,7 @@ func (d *Database) PostComment(ctx context.Context, cmt comment.Comment) (commen
 		Body:   sql.NullString{String: cmt.Body, Valid: true},
 	}
 
+	// Field values from postRow are inserted into the SQL query string.
 	rows, err := d.Client.NamedQueryContext(
 		ctx,
 		`INSERT INTO comments
@@ -71,9 +78,11 @@ func (d *Database) PostComment(ctx context.Context, cmt comment.Comment) (commen
 		return comment.Comment{}, fmt.Errorf("Failed to close rows: %w", err)
 	}
 
+	// cmt struct is returned with cmt.ID updated. Returned data from database is not used here
 	return cmt, nil
 }
 
+// Delete comment from database.
 func (d *Database) DeleteComment(ctx context.Context, id string) error {
 	_, err := d.Client.ExecContext(
 		ctx,
@@ -88,6 +97,7 @@ func (d *Database) DeleteComment(ctx context.Context, id string) error {
 	return nil
 }
 
+// Updates comment in database
 func (d *Database) UpdateComment(ctx context.Context, id string, cmt comment.Comment) (comment.Comment, error) {
 	cmtRow := CommentRow{
 		ID:     id,
@@ -96,6 +106,7 @@ func (d *Database) UpdateComment(ctx context.Context, id string, cmt comment.Com
 		Body:   sql.NullString{String: cmt.Body, Valid: true},
 	}
 
+	// fields from cmtRow are inserted into SQL query string
 	rows, err := d.Client.NamedQueryContext(
 		ctx,
 		`UPDATE comments SET
@@ -114,5 +125,6 @@ func (d *Database) UpdateComment(ctx context.Context, id string, cmt comment.Com
 		return comment.Comment{}, fmt.Errorf("Failed to close rows: %w", err)
 	}
 
+	// A service comment struct is returned. Return value from database is not used here.
 	return commentRowToComment(cmtRow), nil
 }

@@ -10,6 +10,7 @@ import (
 	_ "github.com/lib/pq"
 )
 
+// Runs up migrations to setup our database tables
 func (d *Database) MigrateDB() error {
 	fmt.Println("Migrating database")
 
